@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import Stripe from 'stripe';
+import type { Request, Response } from 'express';
 import { envs } from '../config';
 import { PaymentSessionDto } from './dto/payment-session.dto';
 
@@ -8,7 +9,7 @@ export class PaymentsService {
   private readonly stripe = new Stripe(envs.stripeSecret);
 
   async createPaymentSession(paymentSessionDto: PaymentSessionDto) {
-    const { currency, items } = paymentSessionDto;
+    const { currency, items, orderId } = paymentSessionDto;
 
     const lineItems = items.map((item) => {
       return {
@@ -24,17 +25,52 @@ export class PaymentsService {
     });
 
     const session = await this.stripe.checkout.sessions.create({
-      // TODO: Colocar aquí el ID de mi orden
       payment_intent_data: {
-        metadata: {},
+        metadata: { orderId: orderId },
       },
 
       line_items: lineItems,
       mode: 'payment',
-      success_url: 'http://localhost:3003/payments/success',
-      cancel_url: 'http://localhost:3003/payments/cancel',
+      success_url: envs.stripeSuccessUrl,
+      cancel_url: envs.stripeCancelUrl,
     });
 
     return session;
+  }
+
+  async stripeWebhook(req: Request, res: Response) {
+    const sig = req.headers['stripe-signature'];
+
+    let event;
+    // Real
+    const endpointSecret = envs.stripeEndpointSecret;
+
+    try {
+      event = this.stripe.webhooks.constructEvent(
+        req['rawBody'],
+        sig!,
+        endpointSecret,
+      );
+    } catch (err) {
+      res.status(400).send(`Webhook Error: ${err.message}`);
+      return;
+    }
+
+    switch (event.type) {
+      case 'charge.succeeded': {
+        const chargeSucceeded = event.data.object;
+        // TODO: llamar nuestro microservicio
+        console.log({
+          metadata: chargeSucceeded.metadata,
+          orderId: chargeSucceeded.metadata.orderId,
+        });
+        break;
+      }
+
+      default:
+        console.log(`Event ${event.type} not handled`);
+    }
+
+    return res.status(200).json({ sig });
   }
 }
