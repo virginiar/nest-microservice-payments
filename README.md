@@ -51,8 +51,14 @@ Para los esquemas de validación:
 $ npm install joi
 ```
 
-Para acceder a la API de Stripe
+Para acceder a la API de Stripe:
 
 ```bash
 $ npm install stripe
+```
+
+Para las validaciones se utilizan:
+
+```bash
+$ npm install class-validator class-transformer
 ```
