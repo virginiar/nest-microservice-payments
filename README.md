@@ -50,3 +50,9 @@ Para los esquemas de validación:
 ```bash
 $ npm install joi
 ```
+
+Para acceder a la API de Stripe
+
+```bash
+$ npm install stripe
+```
