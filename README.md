@@ -62,3 +62,16 @@ Para las validaciones se utilizan:
 ```bash
 $ npm install class-validator class-transformer
 ```
+
+Para utilizar NATS para las comunicaciones del microservicio:
+
+```bash
+$ npm i --save nats
+```
+
+
+Para la gestión de microservicios:
+
+```bash
+$ npm i --save @nestjs/microservices
+```
