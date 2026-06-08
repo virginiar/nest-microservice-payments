@@ -23,9 +23,17 @@ $ npm i -g @nestjs/cli
 $ npm install
 ```
 
-4. Crear un archivo ```.env``` basado en ```.env.template```.
+4. Crear el endpoint local de Hookdeck
 
-5. Ejecutar el proyecto
+```bash
+$ npm install hookdeck-cli -g
+$ hookdeck login
+$ hookdeck listen 3003 stripe --path /payments/webhook
+```
+
+5. Crear un archivo ```.env``` basado en ```.env.template```.
+
+6. Ejecutar el proyecto
 
 ```bash
 $ npm run start:dev
@@ -69,9 +77,29 @@ Para utilizar NATS para las comunicaciones del microservicio:
 $ npm i --save nats
 ```
 
-
 Para la gestión de microservicios:
 
 ```bash
 $ npm i --save @nestjs/microservices
+```
+
+Para las pruebas del webhook de Stripe:
+- Crear una cuenta en [Stripe](https://www.stripe.com)
+- Crear un webhook
+
+```bash
+$ stripe --version
+$  stripe login
+$  stripe listen --forward-to localhost:3003/payments/webhook
+$  stripe trigger payment_intent.succeeded
+```
+
+Para las pruebas de Hookdeck:
+- Crear una cuenta en [Hookdeck](https://www.hookdeck.com)
+- Crear una conexión entre el webhook de Stripe y nuestro ordenador local
+
+```bash
+$ npm install hookdeck-cli -g
+$ hookdeck login
+$ hookdeck listen 3003 stripe --path /payments/webhook
 ```
